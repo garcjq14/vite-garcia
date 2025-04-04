@@ -7,20 +7,35 @@ import tsconfigPaths from "vite-tsconfig-paths";
 export default defineConfig({
   base: './',
   plugins: [
-    react(),
+    react({
+      jsxRuntime: 'automatic'
+    }),
     tsconfigPaths(),
   ],
   resolve: {
-    alias: {
-      "@": path.resolve(__dirname, "./src"),
-      "/src": path.resolve(__dirname, "./src"),
-    },
+    alias: [
+      { find: '@', replacement: path.resolve(__dirname, './src') },
+      { find: '/src', replacement: path.resolve(__dirname, './src') },
+      { find: 'src', replacement: path.resolve(__dirname, './src') },
+      { find: './src', replacement: path.resolve(__dirname, './src') },
+    ],
+    extensions: ['.mjs', '.js', '.ts', '.jsx', '.tsx', '.json'],
   },
   build: {
     outDir: 'dist',
     assetsDir: 'assets',
+    minify: 'terser',
+    sourcemap: false,
+    cssCodeSplit: false,
     rollupOptions: {
-      input: path.resolve(__dirname, 'index.html'),
+      input: {
+        main: path.resolve(__dirname, 'index.html'),
+      },
+      external: [],
+      onwarn(warning, warn) {
+        if (warning.code === 'UNRESOLVED_IMPORT') return;
+        warn(warning);
+      },
     }
   }
 }); 
